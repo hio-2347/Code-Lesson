@@ -1,0 +1,6 @@
+services:
+  - type: web
+    runtime: static
+    name: code-lessons
+    buildCommand: echo "nothing to build"
+    staticPublishPath: ./public

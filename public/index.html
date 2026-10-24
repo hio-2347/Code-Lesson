@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code Lessons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#eef2f6;--ink:#14213d;--hi:#ffd23f;--ok:#1f9d6b;--bad:#d1495b;--line:#d3dbe5;--mute:#55627a}
+*{box-sizing:border-box}
+body{margin:0;font:17px/1.55 "Bricolage Grotesque",system-ui,sans-serif;color:var(--ink);background:var(--paper);
+background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:28px 28px}
+header{padding:2rem 1.25rem 1rem;max-width:1000px;margin:auto}
+h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1;margin:0 0 .4rem;font-weight:800;letter-spacing:-.03em}
+h1 mark{background:var(--hi);padding:0 .15em}
+header p{margin:0;color:var(--mute);max-width:46ch}
+main{max-width:1000px;margin:auto;padding:0 1.25rem 3rem}
+.langs{display:flex;gap:.5rem;flex-wrap:wrap;margin:1.2rem 0}
+button{font:inherit;cursor:pointer}
+.lang{border:2px solid var(--ink);background:#fff;padding:.4rem .9rem;border-radius:6px;font-weight:600}
+.lang[aria-pressed=true]{background:var(--ink);color:#fff}
+.bar{height:8px;background:#fff;border:2px solid var(--ink);border-radius:6px;overflow:hidden;margin-bottom:1rem}
+.bar i{display:block;height:100%;width:0;background:var(--hi);transition:width .3s}
+.grid{display:grid;grid-template-columns:230px 1fr;gap:1.25rem}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+nav{display:flex;flex-direction:column;gap:.4rem}
+@media(max-width:720px){nav{flex-flow:row wrap}}
+.les{text-align:left;border:2px solid var(--ink);background:#fff;padding:.5rem .7rem;border-radius:6px}
+.les[aria-current=true]{background:var(--hi)}
+.les.done::after{content:" ✓";color:var(--ok);font-weight:800}
+article{background:#fff;border:2px solid var(--ink);border-radius:8px;padding:1.4rem;box-shadow:6px 6px 0 var(--ink)}
+article h2{margin:0 0 .5rem;font-size:1.8rem;letter-spacing:-.02em}
+textarea,pre{font:14px/1.5 "JetBrains Mono",monospace;background:var(--ink);color:#f4f7fb;border-radius:6px;padding:.9rem;width:100%;margin:.6rem 0;overflow:auto}
+textarea{min-height:150px;resize:vertical;border:0}
+pre{white-space:pre-wrap;min-height:2.6rem}
+iframe{width:100%;height:170px;border:2px solid var(--ink);border-radius:6px;background:#fff}
+.run{background:var(--ink);color:#fff;border:0;padding:.45rem 1rem;border-radius:6px;font-weight:600}
+.run:focus-visible,.lang:focus-visible,.les:focus-visible,.opt:focus-visible,textarea:focus-visible{outline:3px solid var(--bad);outline-offset:2px}
+.quiz{border-top:2px dashed var(--line);margin-top:1.2rem;padding-top:1rem}
+.opts{display:flex;flex-direction:column;gap:.4rem;margin:.6rem 0}
+.opt{text-align:left;border:2px solid var(--ink);background:#fff;padding:.5rem .8rem;border-radius:6px}
+.opt.right{background:#d6f3e6;border-color:var(--ok)}
+.opt.wrong{background:#fbdde2;border-color:var(--bad)}
+.msg{font-weight:600;min-height:1.5em}
+.note{color:var(--mute);font-size:.9rem}
+.next{display:none;margin-top:.5rem}
+.tabs{display:flex;gap:.5rem;margin-bottom:1rem}
+.tab{border:0;border-bottom:4px solid transparent;background:none;padding:.3rem .2rem;font-weight:800;font-size:1.15rem;color:var(--mute)}
+.tab[aria-pressed=true]{color:var(--ink);border-color:var(--hi)}
+.tab+.tab{margin-left:1rem}
+.tab:focus-visible{outline:3px solid var(--bad);outline-offset:2px}
+.alt{background:#fff;color:var(--ink);border:2px solid var(--ink);margin-left:.4rem}
+.hud{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.9rem;font-weight:800}
+.hud span{background:var(--ink);color:var(--hi);padding:.15rem .8rem;border-radius:99px}
+.pop{position:fixed;font-size:1.7rem;pointer-events:none;z-index:9;animation:pop 1.1s ease-out forwards}
+@keyframes pop{to{transform:translate(var(--x),var(--y)) rotate(var(--r));opacity:0}}
+@media(prefers-reduced-motion:reduce){.pop{display:none}}
+/* Glass theme */
+body{background:linear-gradient(135deg,#1b1464 0%,#0f5c7a 55%,#12806d 100%) fixed;color:var(--ink)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+background:radial-gradient(circle at 12% 18%,rgba(255,94,168,.55) 0,transparent 32%),radial-gradient(circle at 88% 12%,rgba(255,210,63,.4) 0,transparent 30%),radial-gradient(circle at 75% 88%,rgba(124,92,255,.6) 0,transparent 34%)}
+.topbar{position:sticky;top:0;z-index:5;background:rgba(15,15,60,.35);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.18);color:#fff;font-weight:800;letter-spacing:-.01em}
+.topbar .wrap{max-width:1000px;margin:auto;padding:.7rem 1.25rem;display:flex;align-items:center;gap:.6rem}
+.logo{background:var(--hi);color:var(--ink);border-radius:8px;padding:.05rem .45rem;font-family:"JetBrains Mono",monospace}
+header h1{color:#fff;text-shadow:0 2px 24px rgba(10,10,60,.35)}
+header h1 mark{color:var(--ink);border-radius:.18em;padding:0 .2em}
+header p{color:rgba(255,255,255,.85)}
+.hud span{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.lang{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:99px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:background .15s}
+.lang:hover{background:rgba(255,255,255,.28)}
+.lang[aria-pressed=true]{background:#fff;color:var(--ink);border-color:#fff}
+.tab{color:rgba(255,255,255,.7)}
+.tab[aria-pressed=true]{color:#fff}
+.bar{background:rgba(255,255,255,.18);border:0;border-radius:99px;height:10px}
+.bar i{background:linear-gradient(90deg,var(--hi),#ff5ea8)}
+article,.les,.opt{-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%)}
+article{background:rgba(255,255,255,.74);border:1px solid rgba(255,255,255,.65);border-radius:22px;box-shadow:0 18px 50px rgba(10,10,60,.3),inset 0 1px 0 rgba(255,255,255,.8);padding:1.6rem}
+.les{background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.7);border-radius:14px;box-shadow:0 4px 14px rgba(10,10,60,.12);transition:transform .12s,background .12s}
+.les:hover{background:rgba(255,255,255,.8);transform:translateY(-1px)}
+.les[aria-current=true]{background:#fff;box-shadow:0 6px 20px rgba(10,10,60,.25),inset 4px 0 0 var(--hi)}
+.opt{background:rgba(255,255,255,.7);border:1px solid rgba(20,33,61,.18);border-radius:12px;transition:background .12s}
+.opt:hover:not(:disabled){background:#fff}
+.opt.right{background:#d6f3e6;border-color:var(--ok)}
+.opt.wrong{background:#fbdde2;border-color:var(--bad)}
+.run{background:linear-gradient(135deg,#7c5cff,#e0409a);color:#fff;border:0;border-radius:12px;padding:.5rem 1.1rem;box-shadow:0 6px 16px rgba(124,92,255,.35);transition:transform .12s,box-shadow .12s}
+.run:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(124,92,255,.45)}
+.alt{background:rgba(255,255,255,.75);color:var(--ink);border:1px solid rgba(20,33,61,.2);box-shadow:none}
+.alt:hover{background:#fff;box-shadow:none}
+textarea,pre{background:rgba(14,20,45,.93);border-radius:14px;border:1px solid rgba(255,255,255,.12)}
+iframe{border:1px solid rgba(20,33,61,.2);border-radius:14px}
+.quiz{border-top:1px dashed rgba(20,33,61,.2)}
+.run:focus-visible,.lang:focus-visible,.les:focus-visible,.opt:focus-visible,.tab:focus-visible,textarea:focus-visible{outline:3px solid #fff;outline-offset:2px;box-shadow:0 0 0 6px var(--ink)}
+footer{text-align:center;color:rgba(255,255,255,.75);padding:0 1.25rem 2.5rem;font-size:.95rem}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){article{background:rgba(255,255,255,.96)}.les,.opt{background:rgba(255,255,255,.92)}.lang{background:rgba(255,255,255,.25)}}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="wrap"><span class="logo">{ }</span> Code Lessons</div></div>
+<header>
+<h1>Learn to code, <mark>one small lesson</mark> at a time.</h1>
+<p>New to coding? Start here. It explains everything in plain words. Then pick a language, win tests and earn XP.</p>
+<div class="hud" id="hud"></div>
+</header>
+<main>
+<div class="langs" id="langs" role="group" aria-label="Languages"></div>
+<div class="tabs" id="tabs" role="group" aria-label="Mode"></div>
+<div class="bar" aria-hidden="true"><i id="fill"></i></div>
+<div class="grid"><nav id="nav" aria-label="Lessons"></nav><article id="lesson" aria-live="polite"></article></div>
+<p><button class="run alt" id="reset" style="margin:0">Reset my progress</button></p>
+</main>
+<footer>Learn by typing. Your progress is saved in this browser.</footer>
+<script>
+const LANGS={
+basics:{name:"Start here",run:"js",lessons:[]},
+js:{name:"JavaScript",run:"js",lessons:[
+{t:"Variables",b:"A variable stores a value. Use const for values that won't change and let for values that will.",
+code:'const name = "Ada";\nlet age = 36;\nage = age + 1;\nconsole.log(name, age);',
+q:"Which keyword creates a value that can't be reassigned?",o:["let","const","var"],a:1},
+{t:"Functions",b:"A function packages steps under a name. return sends a result back to whoever called it.",
+code:'function greet(who) {\n  return "Hello, " + who + "!";\n}\nconsole.log(greet("world"));',
+q:"Which keyword sends a value back from a function?",o:["return","send","exit"],a:0},
+{t:"Arrays and loops",b:"An array is an ordered list. A for...of loop visits each item. Positions start at 0.",
+code:'const nums = [1, 2, 3];\nfor (const n of nums) {\n  console.log(n * 2);\n}',
+q:"What is nums[0] when nums = [5, 6, 7]?",o:["5","6","0"],a:0},
+{t:"Conditions",b:"if runs code only when a test is true. === checks that two values match in value and type.",
+code:'const n = 7;\nif (n % 2 === 0) {\n  console.log("even");\n} else {\n  console.log("odd");\n}',
+q:"What does 3 === \"3\" give?",o:["true","false","an error"],a:1}]},
+py:{name:"Python",run:"none",lessons:[
+{t:"Variables",b:"Python needs no keyword to make a variable. Write a name, =, then a value.",
+code:'name = "Ada"\nage = 36\nage += 1\nprint(name, age)',out:"Ada 37",
+q:"Which function shows output on screen?",o:["print()","echo()","show()"],a:0},
+{t:"Functions",b:"def starts a function. The indented lines below it are its body.",
+code:'def greet(who):\n    return f"Hello, {who}!"\n\nprint(greet("world"))',out:"Hello, world!",
+q:"Which keyword defines a function?",o:["func","def","function"],a:1},
+{t:"Lists and loops",b:"A list holds items in order. A for loop repeats its indented block once per item.",
+code:'for n in [1, 2, 3]:\n    print(n * 2)',out:"2\n4\n6",
+q:"What marks the body of a loop in Python?",o:["Curly braces","Indentation","The word end"],a:1},
+{t:"Conditions",b:"if, elif and else choose between paths. Each test ends with a colon.",
+code:'n = 7\nif n % 2 == 0:\n    print("even")\nelse:\n    print("odd")',out:"odd",
+q:"Which keyword means \"else if\" in Python?",o:["elseif","elif","else if"],a:1}]},
+cs:{name:"C#",run:"none",lessons:[
+{t:"Variables",b:"C# variables have a type. int holds whole numbers and string holds text. Statements end with a semicolon.",
+code:'string name = "Ada";\nint age = 36;\nage++;\nConsole.WriteLine($"{name} {age}");',out:"Ada 37",
+q:"Which type holds whole numbers?",o:["string","int","bool"],a:1},
+{t:"Methods",b:"A method names a block of code. Its return type comes before its name.",
+code:'static int Add(int a, int b)\n{\n    return a + b;\n}\nConsole.WriteLine(Add(2, 3));',out:"5",
+q:"In static int Add(int a, int b), what is the return type?",o:["static","int","Add"],a:1},
+{t:"Lists and loops",b:"List<T> holds items of type T. foreach visits each one.",
+code:'var nums = new List<int> { 1, 2, 3 };\nforeach (var n in nums)\n{\n    Console.WriteLine(n * 2);\n}',out:"2\n4\n6",
+q:"Which loop visits each item of a list?",o:["foreach","repeat","each"],a:0},
+{t:"Conditions",b:"if tests a condition in parentheses. The code in braces runs when it is true.",
+code:'int n = 7;\nif (n % 2 == 0)\n{\n    Console.WriteLine("even");\n}\nelse\n{\n    Console.WriteLine("odd");\n}',out:"odd",
+q:"What does n % 2 give for n = 7?",o:["3","1","0"],a:1}]},
+web:{name:"HTML & CSS",run:"html",lessons:[
+{t:"Elements",b:"HTML describes page content with tags. h1 is the main heading and p is a paragraph.",
+code:'<h1>Hello</h1>\n<p>My first page.</p>',
+q:"Which tag makes the biggest heading?",o:["h6","h1","head"],a:1},
+{t:"Links",b:"The a tag makes a link. Its href attribute holds the destination.",
+code:'<a href="https://example.com">Visit the example site</a>',
+q:"Which attribute holds a link's destination?",o:["src","href","link"],a:1},
+{t:"CSS rules",b:"CSS styles elements. A rule names what to style, then lists property: value pairs.",
+code:'<style>\n  p { color: teal; font-size: 24px; }\n</style>\n<p>Styled text</p>',
+q:"Which property changes text color?",o:["color","paint","font-color"],a:0},
+{t:"Classes",b:"A class lets you style some elements and not others. In CSS, a class selector starts with a dot.",
+code:'<style>\n  .card { padding: 12px; background: gold; }\n</style>\n<div class="card">I am a card</div>\n<div>I am not</div>',
+q:"How does a CSS class selector start?",o:["#","."," *"],a:1}]},
+lua:{name:"Lua (Roblox)",run:"none",lessons:[
+{t:"Variables",b:"Roblox scripts use Luau, a version of Lua. Make variables with local, and print() writes to the Output window in Studio.",
+code:'local name = "Ada"\nlocal health = 100\nhealth = health - 25\nprint(name, health)',out:"Ada\t75",
+q:"Which keyword creates a local variable?",o:["var","local","let"],a:1},
+{t:"Functions",b:"Functions start with function and finish with end. Two dots (..) join text together.",
+code:'local function greet(who)\n\treturn "Hello, " .. who .. "!"\nend\nprint(greet("Roblox"))',out:"Hello, Roblox!",
+q:"Which operator joins two strings in Lua?",o:["+","..","&"],a:1},
+{t:"Tables and loops",b:"A table holds a list of items. ipairs walks through it in order. Lua counts positions from 1, not 0.",
+code:'local items = {"Sword", "Shield", "Potion"}\nfor i, item in ipairs(items) do\n\tprint(i, item)\nend',out:"1\tSword\n2\tShield\n3\tPotion",
+q:"What is the first position in a Lua table?",o:["0","1","-1"],a:1},
+{t:"Conditions",b:"if needs then, and every block ends with end. Use elseif for extra tests.",
+code:'local coins = 15\nif coins >= 20 then\n\tprint("Buy the sword")\nelseif coins >= 10 then\n\tprint("Buy a potion")\nelse\n\tprint("Keep saving")\nend',out:"Buy a potion",
+q:"What closes an if block in Lua?",o:["}","end","endif"],a:1},
+{t:"Making a Part",b:"Instance.new creates objects in your game. A new object only appears once its Parent is set to workspace, the 3D world.",
+code:'local part = Instance.new("Part")\npart.Position = Vector3.new(0, 10, 0)\npart.BrickColor = BrickColor.new("Bright red")\npart.Parent = workspace',out:"In a game: a red block appears 10 studs above the origin.",
+q:"What puts a new Part into the 3D world?",o:["Setting its Parent to workspace","Calling print(part)","Setting its Position"],a:0},
+{t:"Events",b:"Events tell you when something happens. Connect runs your function each time the event fires. Touched fires when something bumps a part.",
+code:'local lava = workspace.Lava\n\nlava.Touched:Connect(function(hit)\n\tlocal humanoid = hit.Parent:FindFirstChild("Humanoid")\n\tif humanoid then\n\t\thumanoid.Health = 0\n\tend\nend)',out:"In a game: a character that touches Lava is knocked out.",
+q:"Which method runs your function when an event fires?",o:["Run","Connect","Call"],a:1}]}
+};
+const TASKS={
+basics:[],
+js:[
+{p:'Declare a constant named score equal to 10, then log it with console.log.',sol:'const score = 10;\nconsole.log(score);',re:[/const\s+score\s*=\s*10/],exp:"10"},
+{p:'Write a function named double that takes n and returns n times 2. Then log double(4).',sol:'function double(n) {\n  return n * 2;\n}\nconsole.log(double(4));',re:[/double/,/return/],exp:"8"},
+{p:'Make an array of 1, 2 and 3. Use a loop to log each number.',sol:'const nums = [1, 2, 3];\nfor (const n of nums) {\n  console.log(n);\n}',re:[/\[\s*1\s*,\s*2\s*,\s*3\s*\]/,/\b(for|forEach)\b/],exp:"1\n2\n3"},
+{p:'Use if and else to log "big" when 12 is greater than 10, and "small" otherwise.',sol:'if (12 > 10) {\n  console.log("big");\n} else {\n  console.log("small");\n}',re:[/\bif\b/,/\belse\b/,/>/],exp:"big"}],
+py:[
+{p:'Make a variable named score equal to 10 and print it.',sol:'score = 10\nprint(score)',re:[/score\s*=\s*10/,/print\s*\(\s*score\s*\)/]},
+{p:'Define a function named double that takes n and returns n * 2.',sol:'def double(n):\n    return n * 2',re:[/def\s+double\s*\(\s*n\s*\)\s*:/,/return\s+n\s*\*\s*2/]},
+{p:'Loop over the list [1, 2, 3] and print each number.',sol:'for n in [1, 2, 3]:\n    print(n)',re:[/for\s+\w+\s+in\s+\[\s*1\s*,\s*2\s*,\s*3\s*\]\s*:/,/print\s*\(/]},
+{p:'Use if and else to print "big" when 12 is greater than 10, and "small" otherwise.',sol:'if 12 > 10:\n    print("big")\nelse:\n    print("small")',re:[/if\s+.+>.+:/,/else\s*:/,/print\s*\(/]}],
+cs:[
+{p:'Declare an int named score equal to 10 and write it with Console.WriteLine.',sol:'int score = 10;\nConsole.WriteLine(score);',re:[/int\s+score\s*=\s*10\s*;/,/Console\.WriteLine\s*\(\s*score\s*\)\s*;/]},
+{p:'Write a method named Double that takes an int n and returns n * 2.',sol:'static int Double(int n)\n{\n    return n * 2;\n}',re:[/int\s+Double\s*\(\s*int\s+n\s*\)/,/return\s+n\s*\*\s*2\s*;/]},
+{p:'You have a List<int> named nums. Use foreach to write each number.',sol:'foreach (var n in nums)\n{\n    Console.WriteLine(n);\n}',re:[/foreach\s*\(\s*(var|int)\s+\w+\s+in\s+nums\s*\)/,/Console\.WriteLine/]},
+{p:'Use if and else to write "big" when 12 is greater than 10, and "small" otherwise.',sol:'if (12 > 10)\n{\n    Console.WriteLine("big");\n}\nelse\n{\n    Console.WriteLine("small");\n}',re:[/if\s*\(.+>.+\)/,/\belse\b/,/Console\.WriteLine/]}],
+web:[
+{p:'Write an h1 heading that says Hello.',sol:'<h1>Hello</h1>',re:[/<h1>\s*Hello\s*<\/h1>/i]},
+{p:'Make a link to https://example.com with the text Visit.',sol:'<a href="https://example.com">Visit</a>',re:[/<a\s+[^>]*href\s*=\s*["']https:\/\/example\.com\/?["'][^>]*>\s*Visit\s*<\/a>/i]},
+{p:'Inside a style tag, write a CSS rule that makes every p element red.',sol:'<style>\n  p { color: red; }\n</style>',re:[/p\s*\{[^}]*color\s*:\s*red/i]},
+{p:'Inside a style tag, write a CSS rule for a class named box with padding of 10px.',sol:'<style>\n  .box { padding: 10px; }\n</style>',re:[/\.box\s*\{[^}]*padding\s*:\s*10px/i]}],
+lua:[
+{p:'Make a local variable named score equal to 10 and print it.',sol:'local score = 10\nprint(score)',re:[/local\s+score\s*=\s*10/,/print\s*\(\s*score\s*\)/]},
+{p:'Write a function named double that takes n and returns n * 2.',sol:'local function double(n)\n\treturn n * 2\nend',re:[/function\s+double\s*\(\s*n\s*\)/,/return\s+n\s*\*\s*2/,/\bend\b/]},
+{p:'Use ipairs to loop over the table {1, 2, 3} and print each value.',sol:'for i, v in ipairs({1, 2, 3}) do\n\tprint(v)\nend',re:[/ipairs\s*\(/,/\bfor\b.+\bin\b/,/\bdo\b/,/print\s*\(/,/\bend\b/]},
+{p:'Given a variable named coins, print "Rich" if coins >= 10, and "Poor" otherwise.',sol:'local coins = 15\nif coins >= 10 then\n\tprint("Rich")\nelse\n\tprint("Poor")\nend',re:[/if\s+.+>=\s*10\s+then/,/\belse\b/,/print\s*\(/,/\bend\b/]},
+{p:'Create a Part with Instance.new and put it into the workspace.',sol:'local part = Instance.new("Part")\npart.Parent = workspace',re:[/Instance\.new\s*\(\s*["']Part["']\s*\)/,/\.Parent\s*=\s*workspace/]},
+{p:'Connect a function to the Touched event of a part named part.',sol:'part.Touched:Connect(function(hit)\n\tprint(hit.Name)\nend)',re:[/\.Touched\s*:\s*Connect\s*\(\s*function/,/\bend\s*\)/]}]
+};
+const mkL=(t,b,code,q,o,a,out)=>({t,b,code,q,o,a,out}),mkT=(p,sol,re,exp)=>({p,sol,re,exp});
+LANGS.js.lessons.push(
+mkL("Template strings","Backticks let you drop values into text with ${}. Time to do some pizza math.",'const pizzas = 3;\nconst price = 8;\nconsole.log(`Total: $${pizzas * price}`);',"Which quote style lets you use ${} inside text?",["Backticks","Single quotes","Double quotes"],0),
+mkL("Objects","An object bundles related facts. Every hero needs stats.",'const hero = { name: "Zed", hp: 100 };\nhero.hp = hero.hp - 30;\nconsole.log(hero.name, hero.hp);',"How do you read hp from hero?",["hero.hp","hero->hp","hero[hp]"],0),
+mkL("While loops","A while loop repeats as long as its test stays true. Launch countdown!",'let n = 3;\nwhile (n > 0) {\n  console.log(n);\n  n--;\n}\nconsole.log("Liftoff!");',"What does n-- do?",["Subtracts 1 from n","Doubles n","Deletes n"],0),
+mkL("Map","map builds a new array by running a function on every item. Power up the whole squad at once.",'const xs = [1, 2, 3];\nconst big = xs.map(x => x * 10);\nconsole.log(big);',"What does map return?",["A new array","Nothing","The first item"],0));
+TASKS.js.push(
+mkT('Make const name = "Sam" and log Hi, Sam! using a template string.','const name = "Sam";\nconsole.log(`Hi, ${name}!`);',[/`/,/\$\{\s*name\s*\}/],"Hi, Sam!"),
+mkT('Make an object named dog with name "Rex" and age 3, then log dog.name.','const dog = { name: "Rex", age: 3 };\nconsole.log(dog.name);',[/dog\s*=\s*\{/,/age\s*:\s*3/],"Rex"),
+mkT('Use a while loop to log 3, 2, 1.','let n = 3;\nwhile (n > 0) {\n  console.log(n);\n  n--;\n}',[/\bwhile\b/],"3\n2\n1"),
+mkT('Use map to double [1, 2, 3] and log the result.','console.log([1, 2, 3].map(x => x * 2));',[/\.map\s*\(/],"[2,4,6]"));
+LANGS.py.lessons.push(
+mkL("f-strings","Put f before the quote and write values inside curly braces. Pizza math again!",'pizzas = 3\nprice = 8\nprint(f"Total: ${pizzas * price}")',"What letter starts an f-string?",["f","s","t"],0,"Total: $24"),
+mkL("Dictionaries","A dictionary pairs keys with values. Perfect for hero stats.",'hero = {"name": "Zed", "hp": 100}\nhero["hp"] -= 30\nprint(hero["name"], hero["hp"])',"Which brackets read a dictionary key?",["[ ]","( )","< >"],0,"Zed 70"),
+mkL("While loops","A while loop keeps going until its test turns False. Launch countdown!",'n = 3\nwhile n > 0:\n    print(n)\n    n -= 1\nprint("Liftoff!")',"What stops a while loop?",["Its test becoming False","The word stop","Nothing, it is endless"],0,"3\n2\n1\nLiftoff!"));
+TASKS.py.push(
+mkT('Make name = "Sam" and print Hi, Sam! using an f-string.','name = "Sam"\nprint(f"Hi, {name}!")',[/\bf["']/,/\{\s*name\s*\}/]),
+mkT('Make a dictionary named dog with name "Rex" and print its name.','dog = {"name": "Rex"}\nprint(dog["name"])',[/dog\s*=\s*\{/,/print\s*\(\s*dog\s*\[/]),
+mkT('Use a while loop to print 3, 2, 1.','n = 3\nwhile n > 0:\n    print(n)\n    n -= 1',[/while\s+.+:/,/print\s*\(/]));
+LANGS.cs.lessons.push(
+mkL("Interpolation","Put $ before the quote and write values inside curly braces. Pizza math!",'int pizzas = 3;\nint price = 8;\nConsole.WriteLine($"Total: ${pizzas * price}");',"Which symbol before the quote makes an interpolated string?",["$","@","#"],0,"Total: $24"),
+mkL("While loops","A while loop repeats while its test is true. Launch countdown!",'int n = 3;\nwhile (n > 0)\n{\n    Console.WriteLine(n);\n    n--;\n}\nConsole.WriteLine("Liftoff!");',"What does n-- do?",["Subtracts 1 from n","Doubles n","Deletes n"],0,"3\n2\n1\nLiftoff!"),
+mkL("Classes","A class is a blueprint. new builds a real object from it. Time to build a hero.",'class Hero\n{\n    public string Name = "Zed";\n    public int Hp = 100;\n}\nvar h = new Hero();\nConsole.WriteLine(h.Name);',"Which keyword builds an object from a class?",["new","make","create"],0,"Zed"));
+TASKS.cs.push(
+mkT('Make string name = "Sam" and write Hi, Sam! using interpolation.','string name = "Sam";\nConsole.WriteLine($"Hi, {name}!");',[/string\s+name\s*=\s*"Sam"/,/\$"[^"]*\{\s*name\s*\}/]),
+mkT('Use a while loop to write 3, 2, 1.','int n = 3;\nwhile (n > 0)\n{\n    Console.WriteLine(n);\n    n--;\n}',[/while\s*\(.+\)/,/Console\.WriteLine/]),
+mkT('Write a class named Dog with a public string field named Name.','class Dog\n{\n    public string Name = "Rex";\n}',[/class\s+Dog\b/,/public\s+string\s+Name/]));
+LANGS.web.lessons.push(
+mkL("Lists","ul makes a bullet list and each li is one item. Write your dream pizza toppings.",'<ul>\n  <li>Pizza</li>\n  <li>Tacos</li>\n</ul>',"Which tag makes one list item?",["li","ul","item"],0),
+mkL("Hover magic","A pseudo-class like :hover styles something while the mouse is over it. Try it!",'<style>\n  button { background: hotpink; border: 0; padding: 10px 16px; border-radius: 8px; }\n  button:hover { background: gold; }\n</style>\n<button>Hover me!</button>',"Which selector styles a button while the mouse is over it?",["button:hover","button:over","button.hover"],0),
+mkL("Flexbox","display: flex lines children up in a row and gap spaces them out.",'<style>\n  .row { display: flex; gap: 10px; }\n  .row div { background: skyblue; padding: 20px; }\n</style>\n<div class="row"><div>A</div><div>B</div><div>C</div></div>',"Which display value lines items up in a row?",["flex","block","row"],0));
+TASKS.web.push(
+mkT('Make a list (ul) with two li items.','<ul>\n  <li>Pizza</li>\n  <li>Tacos</li>\n</ul>',[/<ul>[\s\S]*<li>[\s\S]*<\/li>[\s\S]*<li>[\s\S]*<\/li>[\s\S]*<\/ul>/i]),
+mkT('Inside a style tag, write a CSS rule that changes a button background on hover.','<style>\n  button:hover { background: gold; }\n</style>',[/button\s*:hover\s*\{[^}]*background/i]),
+mkT('Inside a style tag, write a rule that makes .row display flex.','<style>\n  .row { display: flex; }\n</style>',[/\.row\s*\{[^}]*display\s*:\s*flex/i]));
+LANGS.lua.lessons.push(
+mkL("Math","math.floor rounds down. Great for questions like: how many potions can I afford?",'local coins = 5\nlocal price = 2\nprint("You can buy " .. math.floor(coins / price) .. " potions")',"What does math.floor(2.7) give?",["2","3","2.7"],0,"You can buy 2 potions"),
+mkL("Properties","Parts have properties like Size, Color and Anchored. Anchored parts stay in the air instead of falling.",'local part = Instance.new("Part")\npart.Size = Vector3.new(10, 1, 10)\npart.Anchored = true\npart.Color = Color3.fromRGB(255, 105, 180)\npart.Parent = workspace',"What does Anchored = true do?",["Stops the part from falling","Makes it invisible","Deletes it"],0,"In a game: a pink platform floats in the air."),
+mkL("Players","Services run big parts of Roblox. The Players service knows who is in your game.",'local Players = game:GetService("Players")\n\nPlayers.PlayerAdded:Connect(function(player)\n\tprint("Welcome, " .. player.Name .. "!")\nend)',"Which service tracks who is in the game?",["Players","Workspace","Lighting"],0,"In a game: each time someone joins, Welcome, <their name>! prints."),
+mkL("Leaderboard","A Folder named leaderstats inside a player shows up as the leaderboard. Give everyone a Coins score.",'game.Players.PlayerAdded:Connect(function(player)\n\tlocal stats = Instance.new("Folder")\n\tstats.Name = "leaderstats"\n\tstats.Parent = player\n\n\tlocal coins = Instance.new("IntValue")\n\tcoins.Name = "Coins"\n\tcoins.Value = 0\n\tcoins.Parent = stats\nend)',"What must the folder be named for the leaderboard to show it?",["leaderstats","scores","Leaderboard"],0,"In a game: every player gets a Coins score on the leaderboard."));
+TASKS.lua.push(
+mkT('Print the result of math.floor(7 / 2).','print(math.floor(7 / 2))',[/math\.floor\s*\(/,/print\s*\(/]),
+mkT('Set the Anchored property of a variable named part to true.','part.Anchored = true',[/\.Anchored\s*=\s*true/]),
+mkT('Get the Players service with game:GetService.','local Players = game:GetService("Players")',[/game\s*:\s*GetService\s*\(\s*["']Players["']\s*\)/]),
+mkT('Make an IntValue with Instance.new and set its Name to "Coins".','local coins = Instance.new("IntValue")\ncoins.Name = "Coins"',[/Instance\.new\s*\(\s*["']IntValue["']\s*\)/,/\.Name\s*=\s*["']Coins["']/]));
+LANGS.basics.lessons.push(
+mkL("What is code?","Code is a list of instructions for the computer. It reads them from top to bottom, one line at a time, and does exactly what you wrote. console.log shows a message in the output box. Lines starting with // are notes for humans.",'// Press Run code to see what happens\nconsole.log("Hello, world!");\nconsole.log("I just wrote code.");',"In what order does the computer read your lines?",["Top to bottom","Random","Bottom to top"],0),
+mkL("Order matters","Change the order of the lines and the output changes. The computer never skips ahead. Try swapping two lines below, then press Run code.",'console.log("1. Wake up");\nconsole.log("2. Eat pizza");\nconsole.log("3. Code");',"If you swap line 1 and line 3, which message prints first?",["3. Code","1. Wake up","Nothing"],0),
+mkL("Variables are labeled boxes","A variable is a box with a name on it. const makes the box and = puts something inside. Later, use the name to get the value back.",'const pet = "cat";\nconst legs = 4;\nconsole.log(pet);\nconsole.log(legs);','In const pet = "cat", what is inside the box named pet?',["cat","pet","const"],0),
+mkL("Changing a box","Use let when the value will change. The computer works out the right side first, then stores the answer back in the box.",'let score = 10;\nscore = score + 5;\nconsole.log(score);',"What does score hold after score = score + 5?",["15","10","5"],0),
+mkL("Decisions","if means: only do this when the test is true. else is the backup plan. Change hp to 5 and run it again.",'const hp = 0;\nif (hp > 0) {\n  console.log("Keep fighting!");\n} else {\n  console.log("Game over");\n}',"hp is 0. Which message prints?",["Game over","Keep fighting!","Both"],0),
+mkL("Repeating","A loop repeats lines so you do not have to copy and paste. This one counts i from 1 up to 3, so it runs 3 times.",'for (let i = 1; i <= 3; i++) {\n  console.log("Rep " + i);\n}',"How many times does that loop run?",["3","1","4"],0),
+mkL("Functions are recipes","A function is a recipe you write once and use many times. Writing it does nothing yet. Calling it by name runs it.",'function shout(word) {\n  return word + "!!!";\n}\nconsole.log(shout("pizza"));\nconsole.log(shout("code"));',"When does the code inside a function run?",["When you call it","When you write it","Never"],0));
+TASKS.basics.push(
+mkT('Make the computer say Hello! using console.log.','console.log("Hello!");',[/console\.log\s*\(/],"Hello!"),
+mkT('Log the word first, then log the word second, in that order.','console.log("first");\nconsole.log("second");',[/first[\s\S]*second/],"first\nsecond"),
+mkT('Make a box named city that holds "Miami" and log it.','const city = "Miami";\nconsole.log(city);',[/const\s+city\s*=\s*["']Miami["']/],"Miami"),
+mkT('Make let lives = 3, subtract 1 from it, then log lives.','let lives = 3;\nlives = lives - 1;\nconsole.log(lives);',[/let\s+lives\s*=\s*3/],"2"),
+mkT('Start with const age = 20. If age is 18 or more log "adult", otherwise log "kid".','const age = 20;\nif (age >= 18) {\n  console.log("adult");\n} else {\n  console.log("kid");\n}',[/\bif\b/,/\belse\b/,/>=/],"adult"),
+mkT('Use a loop to log the numbers 1, 2 and 3.','for (let i = 1; i <= 3; i++) {\n  console.log(i);\n}',[/\bfor\b/],"1\n2\n3"),
+mkT('Write a function named hi that returns "Hi!" then log hi().','function hi() {\n  return "Hi!";\n}\nconsole.log(hi());',[/function\s+hi/],"Hi!"));
+const $=id=>document.getElementById(id);
+let lang=Object.keys(LANGS)[0],idx=0,tab="lessons";
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const done=(l,i,t=tab)=>store.get("cl:"+(t==="test"?"t:":"")+l+":"+i)==="1";
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function runJS(src){const out=[];const f=(...a)=>out.push(a.map(x=>typeof x==="object"?JSON.stringify(x):String(x)).join(" "));
+try{new Function("console",src)({log:f})}catch(e){out.push("Error: "+e.message)}return out.join("\n")||"(no output)"}
+const RANKS=[[0,"Fresh Newbie 🐣"],[60,"Bug Squasher 🐛"],[200,"Script Sorcerer 🧙"],[400,"Code Ninja 🥷"],[700,"Syntax Wizard 🔮"],[1000,"Legend 👑"]];
+const CHEERS=["Boom! 💥","Nailed it! 🎯","Big brain move! 🧠","You are on fire! 🔥","Easy work! 😎","Legendary! 🏆"];
+const cheer=()=>CHEERS[Math.floor(Math.random()*CHEERS.length)];
+function xp(){let t=0;for(const l in LANGS)LANGS[l].lessons.forEach((_,i)=>{if(done(l,i,"lessons"))t+=10;if(done(l,i,"test"))t+=20});return t}
+function renderHud(){const x=xp();let r=RANKS[0][1];for(const [m,n] of RANKS)if(x>=m)r=n;$("hud").innerHTML=`<span>⚡ ${x} XP</span><span>${r}</span>`}
+function pop(){for(let i=0;i<18;i++){const e=document.createElement("span");e.className="pop";e.textContent=["🎉","⭐","✨","🍕","🚀"][i%5];e.style.left="50%";e.style.top="45%";
+e.style.setProperty("--x",(Math.random()*600-300)+"px");e.style.setProperty("--y",(Math.random()*-400-50)+"px");e.style.setProperty("--r",(Math.random()*720-360)+"deg");document.body.appendChild(e);setTimeout(()=>e.remove(),1200)}}
+function renderLangs(){$("langs").innerHTML=Object.entries(LANGS).map(([k,v])=>`<button class="lang" aria-pressed="${k===lang}" data-k="${k}">${v.name}</button>`).join("");
+$("langs").querySelectorAll("button").forEach(b=>b.onclick=()=>{lang=b.dataset.k;idx=0;render()})}
+function renderNav(){renderHud();const L=LANGS[lang].lessons;
+$("nav").innerHTML=L.map((x,i)=>`<button class="les ${done(lang,i)?"done":""}" aria-current="${i===idx}" data-i="${i}">${x.t}</button>`).join("");
+$("nav").querySelectorAll("button").forEach(b=>b.onclick=()=>{idx=+b.dataset.i;render()});
+const n=L.filter((_,i)=>done(lang,i)).length;$("fill").style.width=(n/L.length*100)+"%"}
+function renderLesson(){if(tab==="test")return renderTest();const g=LANGS[lang],x=g.lessons[idx];let tool="";
+if(g.run==="js")tool=`<button class="run" id="run">Run code</button><pre id="out" aria-label="Output">Press Run code to see the output.</pre>`;
+else if(g.run==="html")tool=`<button class="run" id="run">Update preview</button><iframe id="pv" sandbox="" title="Preview" srcdoc="${x.code.replace(/&/g,"&amp;").replace(/"/g,"&quot;")}"></iframe>`;
+else tool=`<button class="run" id="run">Show example output</button><pre id="out" aria-label="Output">Predict the output, then press Show example output.</pre><p class="note">${g.name} can't run in this page, so the output shown is for the original example. Practice typing your own code in the Test tab.</p>`;
+$("lesson").innerHTML=`<h2>${x.t}</h2><p>${x.b}</p><textarea id="code" spellcheck="false" aria-label="Code example">${esc(x.code)}</textarea>${tool}
+<div class="quiz"><strong>${x.q}</strong><div class="opts">${x.o.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o)}</button>`).join("")}</div><div class="msg" id="msg"></div>
+<button class="run next" id="next">Next lesson</button></div>`;
+$("run").onclick=()=>{const v=$("code").value;
+if(g.run==="js")$("out").textContent=runJS(v);else if(g.run==="html")$("pv").srcdoc=v;else $("out").textContent=x.out};if(g.run!=="none")$("run").click();
+document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{const ok=+b.dataset.i===x.a;
+b.classList.add(ok?"right":"wrong");
+if(ok){const nw=!done(lang,idx);store.set("cl:"+lang+":"+idx,"1");pop();$("msg").textContent="Correct! "+cheer()+(nw?" +10 XP":"");$("msg").style.color="var(--ok)";
+document.querySelectorAll(".opt").forEach(o=>o.disabled=true);
+if(idx<g.lessons.length-1){$("next").style.display="inline-block";$("next").onclick=()=>{idx++;render()}}
+else $("msg").textContent+=" You finished "+g.name+".";renderNav()}
+else{$("msg").textContent="Not quite. Try another answer.";$("msg").style.color="var(--bad)"}})}
+function renderTabs(){const L=LANGS[lang].lessons,n=L.filter((_,i)=>done(lang,i,"test")).length;
+$("tabs").innerHTML=`<button class="tab" aria-pressed="${tab==="lessons"}" data-t="lessons">Lessons</button><button class="tab" aria-pressed="${tab==="test"}" data-t="test">Test (${n}/${L.length})</button>`;
+$("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;idx=0;render()})}
+function renderTest(){const g=LANGS[lang],x=TASKS[lang][idx],last=idx===TASKS[lang].length-1;
+$("lesson").innerHTML=`<h2>${g.lessons[idx].t}: your turn</h2><p>${esc(x.p)}</p><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Type your code" placeholder="Type your code here"></textarea>
+<button class="run" id="chk">Check my code</button><button class="run alt" id="hint">Hint</button><button class="run alt" id="sol">Show answer</button><pre id="out" hidden></pre><div class="msg" id="msg"></div><button class="run next" id="next">${last?"Done":"Next task"}</button>`;
+const ta=$("code");let trap=true;
+ta.onkeydown=e=>{if(e.key==="Escape")trap=false;else if(e.key==="Tab"&&trap){e.preventDefault();const a=ta.selectionStart;ta.setRangeText("  ",a,ta.selectionEnd,"end")}};
+ta.onblur=()=>{trap=true};
+$("sol").onclick=()=>{ta.value=x.sol};
+let h=0;$("hint").onclick=()=>{h++;const ls=x.sol.split("\n");$("msg").style.color="var(--ink)";
+$("msg").textContent=h===1?"Hint: start with  "+(ls[0].match(/^\W*\w+/)||[ls[0]])[0]:h===2?"Hint: the first line is  "+ls[0]:h===3?"Hint: the first two lines are  "+ls.slice(0,2).join("   /   "):"Still stuck? Press Show answer, read it, then type it yourself."};
+$("chk").onclick=()=>{const v=ta.value;let ok=x.re.every(r=>r.test(v)),m="";
+if(x.exp!==undefined){const o=runJS(v);$("out").hidden=false;$("out").textContent=o;ok=ok&&o===x.exp;m=" Expected output: "+x.exp.split("\n").join(" / ")+"."}
+if(ok){const nw=!done(lang,idx);store.set("cl:t:"+lang+":"+idx,"1");pop();$("msg").textContent="Pass! "+cheer()+(nw?" +20 XP":"");$("msg").style.color="var(--ok)";
+if(!last){$("next").style.display="inline-block";$("next").onclick=()=>{idx++;render()}}
+renderTabs();renderNav()}
+else{$("msg").textContent="Not quite."+(m||" Check spelling, punctuation and keywords, or press Show answer.");$("msg").style.color="var(--bad)"}}}
+function render(){renderLangs();renderTabs();renderNav();renderLesson()}
+$("reset").onclick=()=>{if(confirm("Erase all progress?")){try{Object.keys(localStorage).filter(k=>k.startsWith("cl:")).forEach(k=>localStorage.removeItem(k))}catch(e){}render()}};
+render();
+</script>
+</body>
+</html>
